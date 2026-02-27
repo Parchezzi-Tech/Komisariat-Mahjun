@@ -78,9 +78,4 @@ jobs:
         run: |
           echo "Triggering unzip process..."
           curl -v "${{ secrets.APP_URL }}/unzip_deploy.php"
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            **/tests/**
 # SUksessfully deployed to cPanel!
