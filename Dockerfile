@@ -1,52 +1,21 @@
-FROM php:8.2-cli
+FROM serversideup/php:8.2-fpm-nginx
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    libicu-dev \
-    libzip-dev \
-    zip \
-    unzip \
-    nodejs \
-    npm \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+WORKDIR /var/www/html
 
-# Install PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) \
-        pdo_mysql \
-        mbstring \
-        exif \
-        pcntl \
-        bcmath \
-        gd \
-        intl \
-        soap \
-        zip \
-        fileinfo
+COPY --chown=www-data:www-data . .
 
-# Get latest Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+RUN composer install --optimize-autoloader --no-dev --no-interaction
 
-# Set working directory
-WORKDIR /app
+RUN npm ci && npm run build && rm -rf node_modules
 
-# Copy composer files first
-COPY composer.json composer.lock ./
+RUN php artisan config:cache && \
+    php artisan route:cache && \
+    php artisan view:cache
 
-# Install composer dependencies (without autoload to avoid errors)
-RUN composer install --no-dev --no-autoloader --no-scripts --no-interaction --prefer-dist
+EXPOSE 8080
 
-# Copy rest of application
-COPY . .
-
-# Generate optimized autoload and run scripts
-RUN composer dump-autoload --optimize --no-dev
+HEALTHCHECK --interval=10s --timeout=3s --retries=3 \
+    CMD curl -f http://localhost:8080/ || exit 1
 
 # Install npm dependencies and build assets
 RUN npm ci && npm run build
