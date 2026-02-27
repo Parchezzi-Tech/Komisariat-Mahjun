@@ -1,3 +1,5 @@
 [phases.setup]
-aptPkgs = ["..."]
-nixPkgs = ["php82", "php82Extensions.intl", "php82Extensions.zip", "php82Extensions.gd", "php82Extensions.exif"]
+nixPkgs = ["...", "php82Extensions.intl"]
+
+[phases.install]
+cmds = ["composer install --optimize-autoloader"]
