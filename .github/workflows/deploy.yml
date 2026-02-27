@@ -33,9 +33,6 @@ jobs:
         run: |
           cp .env.example .env
           
-          # Replace variables with secrets or default values
-          # Using sed with a different delimiter (|) to handle URLs/paths
-          
           sed -i "s|APP_NAME=Laravel|APP_NAME='${{ secrets.APP_NAME || 'Komisariat Mahjun' }}'|g" .env
           sed -i "s|APP_ENV=local|APP_ENV=production|g" .env
           sed -i "s|APP_KEY=|APP_KEY=${{ secrets.APP_KEY }}|g" .env
@@ -52,6 +49,10 @@ jobs:
       - name: Directory Permissions
         run: chmod -R 777 storage bootstrap/cache
 
+      - name: Zip Artifacts
+        run: |
+          zip -r deploy.zip . -x ".git/*" ".github/*" "tests/*" "node_modules/*"
+
       - name: Upload to FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -63,7 +64,17 @@ jobs:
           timeout: 60000
           security: loose
           server-dir: /komisariat-mahjun.parchezzitech.com/
+          local-dir: ./
           dangerous-clean-slate: false
+          exclude: |
+            **
+            !deploy.zip
+            !unzip_deploy.php
+
+      - name: Trigger Unzip
+        run: |
+          echo "Triggering unzip process..."
+          curl -v "${{ secrets.APP_URL }}/unzip_deploy.php"
           exclude: |
             **/.git*
             **/.git*/**
