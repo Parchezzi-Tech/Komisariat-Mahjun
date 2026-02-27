@@ -53,6 +53,12 @@ jobs:
         run: |
           zip -r deploy.zip . -x ".git/**" ".github/**" "tests/**" "node_modules/**"
 
+      - name: Prepare for Upload
+        # Delete everything except the zip and the unzip script
+        # This forces the FTP action to ONLY upload these two files
+        run: |
+          find . -maxdepth 1 ! -name 'deploy.zip' ! -name 'unzip_deploy.php' ! -name '.' ! -name '..' -exec rm -rf {} +
+
       - name: Upload to FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -66,11 +72,6 @@ jobs:
           server-dir: /komisariat-mahjun.parchezzitech.com/
           local-dir: ./
           dangerous-clean-slate: false
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            **/tests/**
 
 
       - name: Trigger Unzip
