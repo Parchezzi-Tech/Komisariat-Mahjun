@@ -51,7 +51,9 @@ jobs:
 
       - name: Zip Artifacts
         run: |
-          zip -r deploy.zip . -x ".git/**" ".github/**" "tests/**" "node_modules/**"
+          # Make sure .env is included in the zip
+          ls -la .env
+          zip -r deploy.zip . -x ".git/**" ".github/**" "tests/**" "node_modules/**" ".gitignore" ".gitattributes"
 
       - name: Prepare for Upload
         # Delete everything except the zip and the unzip script
