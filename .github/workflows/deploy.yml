@@ -58,9 +58,12 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          dangerous-clean-slate: false
-          protocol: ftp
+          protocol: ftps
+          port: 21
+          timeout: 60000
+          security: loose
           server-dir: /komisariat-mahjun.parchezzitech.com/
+          dangerous-clean-slate: false
           exclude: |
             **/.git*
             **/.git*/**
