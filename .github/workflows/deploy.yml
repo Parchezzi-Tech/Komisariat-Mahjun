@@ -51,7 +51,7 @@ jobs:
 
       - name: Zip Artifacts
         run: |
-          zip -r deploy.zip . -x ".git/*" ".github/*" "tests/*" "node_modules/*"
+          zip -r deploy.zip . -x ".git/**" ".github/**" "tests/**" "node_modules/**"
 
       - name: Upload to FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -70,6 +70,7 @@ jobs:
             **
             !deploy.zip
             !unzip_deploy.php
+            !public/.htaccess
 
       - name: Trigger Unzip
         run: |
