@@ -67,10 +67,11 @@ jobs:
           local-dir: ./
           dangerous-clean-slate: false
           exclude: |
-            **
-            !deploy.zip
-            !unzip_deploy.php
-            !public/.htaccess
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/tests/**
+
 
       - name: Trigger Unzip
         run: |
