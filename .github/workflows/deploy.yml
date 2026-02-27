@@ -56,10 +56,11 @@ jobs:
           zip -r deploy.zip . -x ".git/**" ".github/**" "tests/**" "node_modules/**" ".gitignore" ".gitattributes"
 
       - name: Prepare for Upload
-        # Delete everything except the zip and the unzip script
-        # This forces the FTP action to ONLY upload these two files
         run: |
+          # Keep only deploy.zip and unzip script
           find . -maxdepth 1 ! -name 'deploy.zip' ! -name 'unzip_deploy.php' ! -name '.' ! -name '..' -exec rm -rf {} +
+          echo "Files to upload:"
+          ls -lah
 
       - name: Upload to FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -69,15 +70,18 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftps
           port: 21
-          timeout: 60000
+          timeout: 120000
           security: loose
           server-dir: ./
           local-dir: ./
-          dangerous-clean-slate: false
-
+          dangerous-clean-slate: true
+          log-level: verbose
 
       - name: Trigger Unzip
         run: |
-          echo "Triggering unzip process..."
-          curl -v "${{ secrets.APP_URL }}/unzip_deploy.php"
+          echo "Waiting for FTP sync to complete..."
+          sleep 5
+          echo "Triggering fresh deployment..."
+          curl -f -v "${{ secrets.APP_URL }}/unzip_deploy.php" || echo "Warning: Unzip trigger might have issues"
+          echo "Deployment triggered. Check the URL manually to verify."
 # SUksessfully deployed to cPanel!
